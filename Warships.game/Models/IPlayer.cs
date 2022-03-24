@@ -3,6 +3,8 @@
 public interface IPlayer : IModel
 {
     public string Name { get; set; }
+    
+    public DateTimeOffset JoinDate { get; set; }
 
     public void Send<T>(T payLoad);
 

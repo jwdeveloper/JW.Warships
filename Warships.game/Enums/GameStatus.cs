@@ -1,6 +1,10 @@
 ﻿namespace Warships.game.Enums;
 
-public class GameStatus
+public enum GameStatus
 {
-    
+    None,
+    Pending,
+    Began,
+    InProgress,
+    Finished
 }

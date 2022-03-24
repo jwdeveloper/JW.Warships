@@ -1,59 +1,53 @@
-﻿import React, { Component } from 'react';
+﻿import React, {Component, useState} from 'react';
+import { HubConnectionBuilder, LogLevel, HttpTransportType } from '@microsoft/signalr';
+export class Test extends Component {
 
-export class FetchData extends Component {
-static displayName = FetchData.name;
+    constructor(props) {
+        super(props);
+        this.state = {forecasts: [], loading: true,connection:null};
+    }
 
-constructor(props) {
-    super(props);
-    this.state = { forecasts: [], loading: true };
-}
-
-componentDidMount() {
-    this.populateWeatherData();
-}
-
-static renderForecastsTable(forecasts) {
-    return (
-        <table className='table table-striped' aria-labelledby="tabelLabel">
-        <thead>
-        <tr>
-        <th>Date</th>
-        <th>Temp. (C)</th>
-        <th>Temp. (F)</th>
-        <th>Summary</th>
-        </tr>
-        </thead>
-        <tbody>
-    {forecasts.map(forecast =>
-            <tr key={forecast.date}>
-        <td>{forecast.date}</td>
-            <td>{forecast.temperatureC}</td>
-            <td>{forecast.temperatureF}</td>
-            <td>{forecast.summary}</td>
-            </tr>
-            )}
-    </tbody>
-        </table>
+    componentDidMount() {
+        this.populateWeatherData();
+    }
+   
+    render() {
+        return (
+            <div>
+                <p>SIemmma</p>
+            </div>
         );
-}
+    }
+    async populateWeatherData() {
+        try {
+            console.log("Siema eniu")
+            const connection = new HubConnectionBuilder()
+                .withUrl("https://localhost:7019/lobby",
+                    {
+                        skipNegotiation: true,
+                        transport: HttpTransportType.WebSockets
+                    })
+                .configureLogging(LogLevel.Information)
+                .build();
 
-render() {
-    let contents = this.state.loading
-        ? <p><em>Loading...</em></p>
-        : FetchData.renderForecastsTable(this.state.forecasts);
+            connection.on("ReceiveMessage", (user, message) => {
+                console.log("MSG",message);
+            });
 
-    return (
-        <div>
-        <h1 id="tabelLabel" >Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
-    {contents}
-    </div>
-        );
-}
+            connection.on("UsersInRoom", (users) => {
+                console.log("MSG",users);
+            });
 
-async populateWeatherData() {
-    const response = await fetch('weatherforecast');
-    const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
-}
+            connection.onclose(e => {
+                console.log("PA PA PA PA");
+            });
+
+            await connection.start();
+            await connection.invoke("SeekGame");
+           // setConnection(connection);
+        } catch (e) {
+            console.log(e);
+        }
+
+    }
 }
